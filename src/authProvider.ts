@@ -1,27 +1,54 @@
 import type { AuthProvider } from "@refinedev/core";
 
-export const TOKEN_KEY = "refine-auth";
-
+export const TOKEN_KEY = "token";
+const API_URL = "http://localhost:3000"
 export const authProvider: AuthProvider = {
-  login: async ({ username, email, password }) => {
-    if ((username || email) && password) {
-      localStorage.setItem(TOKEN_KEY, username);
+  login: async ({ email, password }) => {
+    if (email && password) {
+      try {
+        let response = await fetch(API_URL + '/auth/login', {
+          method: "POST",
+          headers: {
+            Accept: 'application.json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email, password
+          }),
+
+
+        })
+        let data = await response.json();
+        if (!response.ok)
+          throw Error(data.message)
+        let p=data.data;
+        localStorage.setItem(TOKEN_KEY, p.access_token)
+        localStorage.setItem('user', JSON.stringify(p.user))
+        return {
+          success: true,
+         redirectTo:'/'
+        };
+
+      }
+      catch (error:any) {
+        
+        throw Error(error.message)
+      }
+
+    }
+    else {
       return {
-        success: true,
-        redirectTo: "/",
+        success: false,
+        error: {
+          name: "LoginError",
+          message: "Invalid email or password",
+        },
       };
     }
-
-    return {
-      success: false,
-      error: {
-        name: "LoginError",
-        message: "Invalid username or password",
-      },
-    };
   },
   logout: async () => {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('user');
     return {
       success: true,
       redirectTo: "/login",
@@ -42,13 +69,11 @@ export const authProvider: AuthProvider = {
   },
   getPermissions: async () => null,
   getIdentity: async () => {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (token) {
-      return {
-        id: 1,
-        name: "John Doe",
-        avatar: "https://i.pravatar.cc/300",
-      };
+    const user_string = localStorage.getItem('user');
+    console.log('df',user_string)
+    if (user_string != 'undefined') {
+      let user = JSON.parse(user_string!);
+      return user;
     }
     return null;
   },

@@ -6,6 +6,7 @@ import {
   ErrorComponent,
   notificationProvider,
   RefineSnackbarProvider,
+  RefineThemes,
   ThemedLayoutV2,
 } from "@refinedev/mui";
 
@@ -38,47 +39,64 @@ import { ForgotPassword } from "./pages/forgotPassword";
 import { Login } from "./pages/login";
 import { Register } from "./pages/register";
 
+import { Dashboard, DeviceHub, Person3, Yard } from "@mui/icons-material";
+import { PlanList } from "./pages/plans";
+import { UserList } from "./pages/users";
+import { ThemeProvider } from "@emotion/react";
+import { createTheme } from "@mui/material";
+import { DashboardPage } from "./dashboard";
+const theme = createTheme({
+  ...RefineThemes.Purple,
+  typography: {
+    // In Chinese and Japanese the characters are usually larger,
+    // so a smaller fontsize may be appropriate.
+    fontSize: 12,
+  },
+});
 function App() {
   return (
     <BrowserRouter>
-      <GitHubBanner />
+     
       <RefineKbarProvider>
         <ColorModeContextProvider>
           <CssBaseline />
           <GlobalStyles styles={{ html: { WebkitFontSmoothing: "auto" } }} />
           <RefineSnackbarProvider>
-            <DevtoolsProvider>
+          <ThemeProvider theme={theme}>
               <Refine
-                dataProvider={dataProvider("https://api.fake-rest.refine.dev")}
+                dataProvider={dataProvider("http://localhost:3000/api")}
                 notificationProvider={notificationProvider}
                 routerProvider={routerBindings}
                 authProvider={authProvider}
                 resources={[
                   {
-                    name: "blog_posts",
-                    list: "/blog-posts",
-                    create: "/blog-posts/create",
-                    edit: "/blog-posts/edit/:id",
-                    show: "/blog-posts/show/:id",
+                    name: "plans",
+                    list: "/plans",
                     meta: {
-                      canDelete: true,
+                      icon: <Yard />,
                     },
+                   
+                   
                   },
                   {
-                    name: "categories",
-                    list: "/categories",
-                    create: "/categories/create",
-                    edit: "/categories/edit/:id",
-                    show: "/categories/show/:id",
+                    name: "users",
+                    list: "/users",
                     meta: {
-                      canDelete: true,
+                      icon: <Person3 />,
                     },
+                   
                   },
+                 
                 ]}
                 options={{
                   syncWithLocation: true,
                   warnWhenUnsavedChanges: true,
                   useNewQueryKeys: true,
+                  title: {
+                    icon: <DeviceHub />,
+                    text: "IOT Manager",
+                  },
+                
                   projectId: "uBJ2jC-GVK30x-vriGp7",
                 }}
               >
@@ -95,22 +113,13 @@ function App() {
                       </Authenticated>
                     }
                   >
-                    <Route
-                      index
-                      element={<NavigateToResource resource="blog_posts" />}
+                    <Route path="/"
+                      
+                      element={<DashboardPage />}
                     />
-                    <Route path="/blog-posts">
-                      <Route index element={<BlogPostList />} />
-                      <Route path="create" element={<BlogPostCreate />} />
-                      <Route path="edit/:id" element={<BlogPostEdit />} />
-                      <Route path="show/:id" element={<BlogPostShow />} />
-                    </Route>
-                    <Route path="/categories">
-                      <Route index element={<CategoryList />} />
-                      <Route path="create" element={<CategoryCreate />} />
-                      <Route path="edit/:id" element={<CategoryEdit />} />
-                      <Route path="show/:id" element={<CategoryShow />} />
-                    </Route>
+                    <Route path="/plans" element={<PlanList />} />
+                    <Route path="/users" element={<UserList />} />
+                   
                     <Route path="*" element={<ErrorComponent />} />
                   </Route>
                   <Route
@@ -136,8 +145,8 @@ function App() {
                 <UnsavedChangesNotifier />
                 <DocumentTitleHandler />
               </Refine>
-              <DevtoolsPanel />
-            </DevtoolsProvider>
+              </ThemeProvider>
+             
           </RefineSnackbarProvider>
         </ColorModeContextProvider>
       </RefineKbarProvider>
