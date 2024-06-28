@@ -19,11 +19,25 @@ export interface IUser {
   password:string;
   plan?:IPlan;
 }
+
 export interface IPlan {
   id: number;
   name: string;
  limit:number;
 }
+export interface IRole {
+  id: any;
+
+  name: string;
+ permissions:IPermission;
+}
+
+ export type permRecordType={create:boolean,edit:boolean,delete:boolean,owned:boolean,list:boolean,show:boolean}
+ export type actionType="create"|"edit"|"delete"|"owned"|"list"|"show";
+export interface IPermission {
+  [key: string]: permRecordType
+}
+
 export type Nullable<T> = {
   [P in keyof T]: T[P] | null;
 };

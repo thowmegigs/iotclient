@@ -85,7 +85,7 @@ export const UserList: React.FC = () => {
   );
   return (
     <>
-      <List createButtonProps={{ onClick: () => showCreateModal() }}>
+      <List createButtonProps={{onClick: () => showCreateModal() }}>
         <DataGrid {...dataGridPropsx}  columns={columns} autoHeight />
       </List>
       <CreateUserModal {...createModalFormProps} />

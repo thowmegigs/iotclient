@@ -1,7 +1,8 @@
 import type { AuthProvider } from "@refinedev/core";
 
 export const TOKEN_KEY = "token";
-const API_URL = "http://localhost:3000"
+// const API_URL = "https://retired-marissa-vsdvd-386c762c.koyeb.app"
+const API_URL = "http://localhost:8000"
 export const authProvider: AuthProvider = {
   login: async ({ email, password }) => {
     if (email && password) {
@@ -70,7 +71,7 @@ export const authProvider: AuthProvider = {
   getPermissions: async () => null,
   getIdentity: async () => {
     const user_string = localStorage.getItem('user');
-    console.log('df',user_string)
+   
     if (user_string != 'undefined') {
       let user = JSON.parse(user_string!);
       return user;

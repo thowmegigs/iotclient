@@ -13,7 +13,7 @@ import TextField from "@mui/material/TextField";
 import type { UseModalFormReturnType } from "@refinedev/react-hook-form";
 
 
-import type { IUser, Nullable } from "../../interfaces";
+import type { IRole, IUser, Nullable } from "../../interfaces";
 import { Controller } from "react-hook-form";
 
 export const CreateUserModal: React.FC<
@@ -25,8 +25,10 @@ export const CreateUserModal: React.FC<
   control,
   formState: { errors },
 }) => {
-    const autocompleteROleOptions = ['Admin', 'SuperVisor', 'User'].map((option) => ({ label: option, value: option }));
-
+    const { autocompleteProps } = useAutocomplete<IRole>({
+          resource: "roles",
+        });
+        
     return (
       <Dialog
         open={visible}
@@ -115,14 +117,19 @@ export const CreateUserModal: React.FC<
               render={({ field }) => (
                 <Autocomplete<any>
                   id="role"
-                  options={autocompleteROleOptions}
-                  {...field}
+                 
+                  {...autocompleteProps}
+                 {...field}
                   onChange={(_, value) => {
                     field.onChange(value.value);
                   }}
                   getOptionLabel={(item) => {
-                    return item.label;
-                  }}
+                                      return (
+                                        autocompleteProps?.options?.find(
+                                          (p) => p?.id?.toString() === item?.id?.toString(),
+                                        )?.name ?? ""
+                                      );
+                   }}
                   isOptionEqualToValue={(option, value) => option.value === value}
                   renderInput={(params) => (
                     <TextField

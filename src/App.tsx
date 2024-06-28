@@ -1,5 +1,5 @@
 import { Authenticated, GitHubBanner, Refine } from "@refinedev/core";
-import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
+
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
 import {
@@ -23,18 +23,7 @@ import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import { authProvider } from "./authProvider";
 import { Header } from "./components/header";
 import { ColorModeContextProvider } from "./contexts/color-mode";
-import {
-  BlogPostCreate,
-  BlogPostEdit,
-  BlogPostList,
-  BlogPostShow,
-} from "./pages/blog-posts";
-import {
-  CategoryCreate,
-  CategoryEdit,
-  CategoryList,
-  CategoryShow,
-} from "./pages/categories";
+
 import { ForgotPassword } from "./pages/forgotPassword";
 import { Login } from "./pages/login";
 import { Register } from "./pages/register";
@@ -45,6 +34,8 @@ import { UserList } from "./pages/users";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme } from "@mui/material";
 import { DashboardPage } from "./dashboard";
+import { RoleList } from "./pages/roles";
+import { IUser } from "./interfaces";
 const theme = createTheme({
   ...RefineThemes.Purple,
   typography: {
@@ -53,6 +44,26 @@ const theme = createTheme({
     fontSize: 12,
   },
 });
+
+const aprovider={
+  can: async ({ resource, action, params }:any) => {
+    if(authProvider){
+        let role=(await authProvider?.getIdentity()! as Promise<IUser>)?.role
+
+       let perm=role.permissions
+       console.log(perm)
+        return Promise.resolve({
+          can: perm[resource]!==undefined && perm[resource][action]!==undefined?perm[resource][action]:false,
+          reason: "Unauthorized",
+      });
+  }
+
+      return Promise.resolve({
+        can: false,
+        reason: "Unautorized",
+    });
+  }
+}
 function App() {
   return (
     <BrowserRouter>
@@ -63,8 +74,10 @@ function App() {
           <GlobalStyles styles={{ html: { WebkitFontSmoothing: "auto" } }} />
           <RefineSnackbarProvider>
           <ThemeProvider theme={theme}>
+           
               <Refine
-                dataProvider={dataProvider("http://localhost:3000/api")}
+                 accessControlProvider={aprovider}
+                dataProvider={dataProvider("http://localhost:8000/api")}
                 notificationProvider={notificationProvider}
                 routerProvider={routerBindings}
                 authProvider={authProvider}
@@ -81,6 +94,14 @@ function App() {
                   {
                     name: "users",
                     list: "/users",
+                    meta: {
+                      icon: <Person3 />,
+                    },
+                   
+                  },
+                  {
+                    name: "roles",
+                    list: "/roles",
                     meta: {
                       icon: <Person3 />,
                     },
@@ -119,6 +140,7 @@ function App() {
                     />
                     <Route path="/plans" element={<PlanList />} />
                     <Route path="/users" element={<UserList />} />
+                    <Route path="/roles" element={<RoleList />} />
                    
                     <Route path="*" element={<ErrorComponent />} />
                   </Route>
