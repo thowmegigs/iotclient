@@ -1,5 +1,5 @@
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import { type HttpError, useMany } from "@refinedev/core";
+import { type HttpError, useMany, useCan } from "@refinedev/core";
 import { DeleteButton, EditButton, List, useDataGrid } from "@refinedev/mui";
 import { useModalForm } from "@refinedev/react-hook-form";
 import React, { useRef, useState } from "react";
@@ -8,6 +8,7 @@ import type {  IPlan, Nullable } from "../../interfaces";
 import { CreatePlanModal } from "../../components/plans/createPlanModal";
 import { EditPlanModal } from "../../components/plans/editPlanModal";
 import { Box } from "@mui/material";
+import { Unauthorized } from "../../unauthorized";
 
 export const PlanList: React.FC = () => {
   const { dataGridProps } = useDataGrid<IPlan>();
@@ -62,13 +63,14 @@ let indexRef=0
     ],
     [],
   );
-  return (
-    <>
-      <List createButtonProps={{ onClick: () => showCreateModal() }}>
-        <DataGrid {...dataGridPropsx}  columns={columns} autoHeight />
-      </List>
-      <CreatePlanModal {...createModalFormProps} />
-      <EditPlanModal {...editModalFormProps} />
-    </>
-  );
+    const {data:resource_permission}=useCan({resource: "plans",action: "list"})
+  return (resource_permission!==undefined && resource_permission?.can ?<>
+    <List createButtonProps={{ onClick: () => showCreateModal() }}>
+      <DataGrid {...dataGridPropsx}  columns={columns} autoHeight />
+    </List>
+    <CreatePlanModal {...createModalFormProps} />
+    <EditPlanModal {...editModalFormProps} />
+  </>:<Unauthorized />
+  
+);
 };

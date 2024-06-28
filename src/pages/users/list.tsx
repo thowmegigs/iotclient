@@ -1,5 +1,5 @@
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import { type HttpError, useMany } from "@refinedev/core";
+import { type HttpError, useMany, useCan } from "@refinedev/core";
 import { DeleteButton, EditButton, List, ShowButton, useDataGrid } from "@refinedev/mui";
 import { useModalForm } from "@refinedev/react-hook-form";
 import React, { useRef, useState } from "react";
@@ -10,6 +10,7 @@ import { EditUserModal } from "../../components/users/editUserModal";
 import { Box, Button, IconButton } from "@mui/material";
 import { ShowUser } from "../../components/users/viewModal";
 import { RemoveRedEye } from "@mui/icons-material";
+import { Unauthorized } from "../../unauthorized";
 
 
 export const UserList: React.FC = () => {
@@ -83,16 +84,14 @@ export const UserList: React.FC = () => {
     ],
     [],
   );
-  return (
-    <>
-      <List createButtonProps={{onClick: () => showCreateModal() }}>
-        <DataGrid {...dataGridPropsx}  columns={columns} autoHeight />
-      </List>
-      <CreateUserModal {...createModalFormProps} />
-      <EditUserModal {...editModalFormProps} />
-      {
-        showModal && <ShowUser row={selectedRow} open={showModal} close={close} />
-      }
-    </>
-  );
+  const {data:resource_permission}=useCan({resource: "users",action: "list"})
+  return (resource_permission!==undefined && resource_permission?.can ?<>
+    <List createButtonProps={{ onClick: () => showCreateModal() }}>
+      <DataGrid {...dataGridPropsx}  columns={columns} autoHeight />
+    </List>
+    <CreateUserModal {...createModalFormProps} />
+    <EditUserModal {...editModalFormProps} />
+  </>:<Unauthorized />
+  
+);
 };
